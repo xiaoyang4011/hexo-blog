@@ -1,0 +1,773 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="node," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="接触Node以来听到挺多关于node的吐槽，槽点主要有
+
+单进程，单线程，无法利用多核CPU，在这个动不动就4核，8核的CPU来说简直蛋疼的不要不要的。
+对程序要求比较高，动不动一个uncatch 的 err 线程直接就崩掉了。
+相对来说对程序员要求高些。
+
+Nodejs如何实现多线程？如下代码实现了一个http的server123456var http = require(&apos;http&apos;);htt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nodejs之多进程">
+<meta property="og:url" content="http://yoursite.com/2016/12/06/2016-12-06/index.html">
+<meta property="og:site_name" content="Shawn">
+<meta property="og:description" content="接触Node以来听到挺多关于node的吐槽，槽点主要有
+
+单进程，单线程，无法利用多核CPU，在这个动不动就4核，8核的CPU来说简直蛋疼的不要不要的。
+对程序要求比较高，动不动一个uncatch 的 err 线程直接就崩掉了。
+相对来说对程序员要求高些。
+
+Nodejs如何实现多线程？如下代码实现了一个http的server123456var http = require(&apos;http&apos;);htt">
+<meta property="og:image" content="http://7xppjy.com1.z0.glb.clouddn.com/TB1bexvKpXXXXaMXXXX3GwW0VXX-426-298.png">
+<meta property="og:image" content="http://7xppjy.com1.z0.glb.clouddn.com/TB1kT6gKpXXXXbyXXXXvNGU0VXX-533-352.png">
+<meta property="og:updated_time" content="2017-02-23T04:24:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nodejs之多进程">
+<meta name="twitter:description" content="接触Node以来听到挺多关于node的吐槽，槽点主要有
+
+单进程，单线程，无法利用多核CPU，在这个动不动就4核，8核的CPU来说简直蛋疼的不要不要的。
+对程序要求比较高，动不动一个uncatch 的 err 线程直接就崩掉了。
+相对来说对程序员要求高些。
+
+Nodejs如何实现多线程？如下代码实现了一个http的server123456var http = require(&apos;http&apos;);htt">
+<meta name="twitter:image" content="http://7xppjy.com1.z0.glb.clouddn.com/TB1bexvKpXXXXaMXXXX3GwW0VXX-426-298.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/12/06/2016-12-06/"/>
+
+
+
+
+
+  <title> Nodejs之多进程 | Shawn </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Shawn</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/12/06/2016-12-06/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Shawn">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://ojkc58rwm.bkt.clouddn.com/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Shawn">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Shawn" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Nodejs之多进程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-06T16:12:23+08:00">
+                2016-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">Nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/12/06/2016-12-06/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/12/06/2016-12-06/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>接触Node以来听到挺多关于node的吐槽，槽点主要有</p>
+<ol>
+<li>单进程，单线程，无法利用多核CPU，在这个动不动就4核，8核的CPU来说简直蛋疼的不要不要的。</li>
+<li>对程序要求比较高，动不动一个uncatch 的 err 线程直接就崩掉了。</li>
+<li>相对来说对程序员要求高些。</li>
+</ol>
+<h3 id="Nodejs如何实现多线程？"><a href="#Nodejs如何实现多线程？" class="headerlink" title="Nodejs如何实现多线程？"></a>Nodejs如何实现多线程？</h3><p>如下代码实现了一个http的server<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</div><div class="line"></div><div class="line">http.createServer(<span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>)</span>&#123;</div><div class="line">	res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span> : <span class="string">'text/plain'</span>&#125;);</div><div class="line">	res.end(<span class="string">'hello world'</span>);</div><div class="line">&#125;).listen(<span class="number">3000</span>, <span class="string">'127.0.0.1'</span>);</div></pre></td></tr></table></figure></p>
+<p>执行 node server.js</p>
+<p>然后我再启一个不就成了？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">events.js:160</div><div class="line">      throw er; // Unhandled &apos;error&apos; event</div><div class="line">      ^</div><div class="line"></div><div class="line">Error: listen EADDRINUSE 127.0.0.1:3000</div><div class="line">    at Object.exports._errnoException (util.js:896:11)</div><div class="line">    at exports._exceptionWithHostPort (util.js:919:20)</div><div class="line">    at Server._listen2 (net.js:1246:14)</div><div class="line">    at listen (net.js:1282:10)</div><div class="line">    at net.js:1392:9</div><div class="line">    at _combinedTickCallback (internal/process/next_tick.js:77:11)</div><div class="line">    at process._tickCallback (internal/process/next_tick.js:98:9)</div><div class="line">    at Function.Module.runMain (module.js:577:11)</div><div class="line">    at startup (node.js:159:18)</div><div class="line">    at node.js:444:3</div></pre></td></tr></table></figure></p>
+<p>显然是不行的， 已经有进程在监听该端口了。</p>
+<p>既然你不让我是不是可以启动多个进程，监听多个端口，然后用nginx 去把请求随机发到各个端口上不就得了。</p>
+<p>但也有比较大的局限性，比如想增加或者减少一个进程时还得再去改下 nginx 的配置。该方案与 nginx 耦合度太高，实际项目中并不经常使用。<br>PS: 不得不说 nginx 反向代理功能确实强大</p>
+<h3 id="多进程监听同一端口"><a href="#多进程监听同一端口" class="headerlink" title="多进程监听同一端口"></a>多进程监听同一端口</h3><p>那能不能实现多进程同时监听同一端口呢？</p>
+<p>答案是可以的。</p>
+<p>master.js<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>);</div><div class="line"><span class="keyword">const</span> fork = <span class="built_in">require</span>(<span class="string">'child_process'</span>).fork;</div><div class="line"></div><div class="line"><span class="keyword">var</span> handle= net._createServerHandle(<span class="string">'0.0.0.0'</span>, <span class="number">3000</span>);</div><div class="line"></div><div class="line"><span class="keyword">for</span>(<span class="keyword">let</span> a =<span class="number">0</span>; a &lt; <span class="number">4</span>; a++)&#123;</div><div class="line">	fork(<span class="string">'./worker.js'</span>).send(&#123;&#125;, handle);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>worker.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>);</div><div class="line">process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">m, server</span>)</span>&#123;</div><div class="line">		server.listen();</div><div class="line">		server.onconnection = <span class="function"><span class="keyword">function</span>(<span class="params">err, handle</span>)</span>&#123;</div><div class="line">		<span class="built_in">console</span>.log(<span class="string">'got a connection on worker, pid = %d'</span>, process.pid);</div><div class="line">		<span class="keyword">var</span> socket = <span class="keyword">new</span> net.Socket(&#123;</div><div class="line">			<span class="attr">handle</span>: handle</div><div class="line">		&#125;);</div><div class="line">		socket.readable = socket.writable = <span class="literal">true</span>;</div><div class="line">		socket.end(<span class="string">'hello js'</span>);</div><div class="line">	&#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>大体实现是这样，master 进程创建 socket，绑定到某个地址以及端口后，自身不调用 listen 来监听连接以及 accept 连接，而是将该 socket 的 fd 传递到 fork 出来的 worker 进程，worker 接收到 fd 后再调用 listen，accept 新的连接。<br>PS: file descriptor, 一个socket的句柄</p>
+<p>看着挺好，但是这种进程模型有比较明显的问题。</p>
+<p>多进程监听同一端口的进程模型<br><img src="http://7xppjy.com1.z0.glb.clouddn.com/TB1bexvKpXXXXaMXXXX3GwW0VXX-426-298.png" alt="此处输入图片的描述"></p>
+<ol>
+<li>多个进程会竞争 accpet 一个连接。</li>
+<li>无法控制请求由哪个进程去处理，导致各个worker之间负载不均衡。</li>
+</ol>
+<h3 id="master进程负责监听和调度任务"><a href="#master进程负责监听和调度任务" class="headerlink" title="master进程负责监听和调度任务"></a>master进程负责监听和调度任务</h3><p>思路如下：<br>master 进程创建 socket，绑定地址以及端口后再进行监听。该 socket 的 fd 不传递到各个 worker 进程。</p>
+<p>master.js<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>);</div><div class="line"><span class="keyword">const</span> fork = <span class="built_in">require</span>(<span class="string">'child_process'</span>).fork;</div><div class="line"></div><div class="line"><span class="keyword">var</span> workers = [];</div><div class="line"></div><div class="line"><span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</div><div class="line">	workers.push(fork(<span class="string">'./worker.js'</span>));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> serverHandle = net._createServerHandle(<span class="string">'0.0.0.0'</span>, <span class="number">3000</span>);</div><div class="line">serverHandle.listen();</div><div class="line"></div><div class="line">serverHandle.onconnection = <span class="function"><span class="keyword">function</span>(<span class="params">err, handle</span>) </span>&#123;</div><div class="line">	<span class="keyword">var</span> worker = workers.pop();</div><div class="line">	worker.send(&#123;&#125;, handle);</div><div class="line">	workers.unshift(worker);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>worker.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>);</div><div class="line">process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">m, handle</span>)</span>&#123;</div><div class="line">	<span class="built_in">console</span>.log(<span class="string">'got a connection on work , pid = %d'</span>, process.pid);</div><div class="line"></div><div class="line">	<span class="keyword">var</span> socket = <span class="keyword">new</span> net.Socket(&#123;</div><div class="line">		<span class="attr">handle</span> : handle</div><div class="line">	&#125;);</div><div class="line"></div><div class="line">	socket.end(<span class="string">'hello world'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>进程模型如下图<br><img src="http://7xppjy.com1.z0.glb.clouddn.com/TB1kT6gKpXXXXbyXXXXvNGU0VXX-533-352.png" alt="此处输入图片的描述"></p>
+<p>master进程负责监听，当请求进来后master可以指定某个进程去处理，这个过程完全是可控的。</p>
+<h3 id="进程守护"><a href="#进程守护" class="headerlink" title="进程守护"></a>进程守护</h3><ul>
+<li><p>master 进程除了负责接收新的连接，分发给各 worker 进程处理之外，还得像天使一样默默地守护着这些 worker 进程，保障整个应用的稳定性。一旦某个 worker 进程异常退出就 fork 一个新的子进程顶替上去。</p>
+</li>
+<li><p>这一切 cluster 模块都已经好处理了，当某个 worker 进程发生异常退出或者与 master 进程失去联系（disconnected）时，master 进程都会收到相应的事件通知。</p>
+</li>
+</ul>
+<h3 id="关于-uncaughtException"><a href="#关于-uncaughtException" class="headerlink" title="关于 uncaughtException"></a>关于 uncaughtException</h3><p>开始说到当有uncatch的err时，进程就会因此崩溃掉，程序崩掉不可避免，那如果正确的关闭这个进程呢？</p>
+<ul>
+<li>process 的 uncaughtException 事件是当node未捕获的异常产生都会触发此事件。</li>
+<li>给 process 对象添加 uncaughtException 事件绑定， 因为能够避免发生异常时进程直接退出。</li>
+<li>通过 uncaughtException 告知守护进程，由守护进程关闭该进程，同时fork一个新的进程出来。</li>
+<li>设置 setTimeout，差不多所有请求都已经处理完毕后，再让该进程退出。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/node/" rel="tag"># node</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/20/2016-11-20/" rel="next" title="初识Vuex">
+                <i class="fa fa-chevron-left"></i> 初识Vuex
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/12/06/2016-12-06/"
+           data-title="Nodejs之多进程" data-url="http://yoursite.com/2016/12/06/2016-12-06/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://ojkc58rwm.bkt.clouddn.com/avatar.png"
+               alt="Shawn" />
+          <p class="site-author-name" itemprop="name">Shawn</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nodejs如何实现多线程？"><span class="nav-number">1.</span> <span class="nav-text">Nodejs如何实现多线程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多进程监听同一端口"><span class="nav-number">2.</span> <span class="nav-text">多进程监听同一端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#master进程负责监听和调度任务"><span class="nav-number">3.</span> <span class="nav-text">master进程负责监听和调度任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#进程守护"><span class="nav-number">4.</span> <span class="nav-text">进程守护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#关于-uncaughtException"><span class="nav-number">5.</span> <span class="nav-text">关于 uncaughtException</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shawn</span>
+</div>
+
+
+<div class="powered-by">
+  <a class="theme-link" target="_blank" href="http://www.miibeian.gov.cn">鲁ICP备15003072号</a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"7csa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>

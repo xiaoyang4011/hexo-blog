@@ -1,0 +1,761 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="vue," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。–Vuex is an application architecture for centralized state management in Vue.js applications.
+官网是这个样解释的，but没看懂。
+实践出真知，还是动手搞一搞吧
+新建vue项目
+项目是一个笔记应用
+详细信息参考 segmentfault">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识Vuex">
+<meta property="og:url" content="http://yoursite.com/2016/11/20/2016-11-20/index.html">
+<meta property="og:site_name" content="Shawn">
+<meta property="og:description" content="Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。–Vuex is an application architecture for centralized state management in Vue.js applications.
+官网是这个样解释的，but没看懂。
+实践出真知，还是动手搞一搞吧
+新建vue项目
+项目是一个笔记应用
+详细信息参考 segmentfault">
+<meta property="og:image" content="http://7xppjy.com1.z0.glb.clouddn.com/vuex.png">
+<meta property="og:image" content="http://7xppjy.com1.z0.glb.clouddn.com/855498BF-1111-4A73-A1F3-CC5DB8C7F2D2.png">
+<meta property="og:updated_time" content="2017-02-23T04:37:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="初识Vuex">
+<meta name="twitter:description" content="Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。–Vuex is an application architecture for centralized state management in Vue.js applications.
+官网是这个样解释的，but没看懂。
+实践出真知，还是动手搞一搞吧
+新建vue项目
+项目是一个笔记应用
+详细信息参考 segmentfault">
+<meta name="twitter:image" content="http://7xppjy.com1.z0.glb.clouddn.com/vuex.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/20/2016-11-20/"/>
+
+
+
+
+
+  <title> 初识Vuex | Shawn </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Shawn</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle"></p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/20/2016-11-20/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Shawn">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="http://ojkc58rwm.bkt.clouddn.com/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="Shawn">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="Shawn" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                初识Vuex
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-20T23:01:43+08:00">
+                2016-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Vue-js/" itemprop="url" rel="index">
+                    <span itemprop="name">Vue.js</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2016/11/20/2016-11-20/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/20/2016-11-20/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="http://7xppjy.com1.z0.glb.clouddn.com/vuex.png" alt="此处输入图片的描述"></p>
+<h3 id="Vuex-是一个专门为-Vue-js-应用所设计的集中式状态管理架构。"><a href="#Vuex-是一个专门为-Vue-js-应用所设计的集中式状态管理架构。" class="headerlink" title="Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。"></a>Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。</h3><p>–Vuex is an application architecture for centralized state management in Vue.js applications.</p>
+<p>官网是这个样解释的，but没看懂。</p>
+<p>实践出真知，还是动手搞一搞吧</p>
+<h3 id="新建vue项目"><a href="#新建vue项目" class="headerlink" title="新建vue项目"></a>新建vue项目</h3><p><img src="http://7xppjy.com1.z0.glb.clouddn.com/855498BF-1111-4A73-A1F3-CC5DB8C7F2D2.png" alt="目录"></p>
+<p>项目是一个笔记应用</p>
+<p>详细信息参考 <a href="https://segmentfault.com/a/1190000005015164" target="_blank" rel="external">segmentfault</a> 上的内容</p>
+<p>主要核心的内容是vuex的 store.js<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></div><div class="line"><span class="keyword">import</span> Vuex <span class="keyword">from</span> <span class="string">'vuex'</span></div><div class="line"></div><div class="line">Vue.use(Vuex)</div><div class="line"></div><div class="line"><span class="keyword">const</span> state = &#123;</div><div class="line">  <span class="attr">note</span>: [],</div><div class="line">  <span class="attr">activeNote</span>: &#123;&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">const</span> mutations = &#123;</div><div class="line">  ADD_NOTE (state) &#123;</div><div class="line">    <span class="keyword">const</span> newNote = &#123;</div><div class="line">      <span class="attr">text</span>: <span class="string">'New Note'</span>,</div><div class="line">      <span class="attr">favorite</span>: <span class="literal">false</span></div><div class="line">    &#125;</div><div class="line">    state.notes.push(newNote)</div><div class="line">    state.activeNote = newNote</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  EDIT_NOTE (state, text) &#123;</div><div class="line">    state.activeNote.text = text</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  DELETE_NOTE (state) &#123;</div><div class="line">    state.notes.$remove(state.activeNote)</div><div class="line">    state.activeNote = state.notes[<span class="number">0</span>]</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  TOGGLE_FAVORITE (state) &#123;</div><div class="line">    state.activeNote.favorite = !state.activeNote.favorite</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  SET_ACTIVE_NOTE (state, note) &#123;</div><div class="line">    state.activeNote = note</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">new</span> Vuex.Store(&#123;</div><div class="line">  state,</div><div class="line">  mutations</div><div class="line">&#125;)</div></pre></td></tr></table></figure></p>
+<p>store 文件主要是用来做</p>
+<ul>
+<li>添加笔记到数组里 (state.notes)</li>
+<li>把选中的笔记设置为「当前笔记」(state.activeNote)</li>
+<li>删掉当前笔记</li>
+<li>编辑当前笔记</li>
+<li>收藏/取消收藏当前笔记</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line">&lt;template&gt;</div><div class="line">  &lt;div id="notes-list"&gt;</div><div class="line"></div><div class="line">    &lt;div id="list-header"&gt;</div><div class="line">      &lt;h2&gt;Notes | coligo&lt;/h2&gt;</div><div class="line">      &lt;div class="btn-group btn-group-justified" role="group"&gt;</div><div class="line">        &lt;!-- All Notes button --&gt;</div><div class="line">        &lt;div class="btn-group" role="group"&gt;</div><div class="line">          &lt;button type="button" class="btn btn-default"</div><div class="line">            @click="show = 'all'"</div><div class="line">            :class="&#123;active: show === 'all'&#125;"&gt;</div><div class="line">            All Notes</div><div class="line">          &lt;/button&gt;</div><div class="line">        &lt;/div&gt;</div><div class="line">        &lt;!-- Favorites Button --&gt;</div><div class="line">        &lt;div class="btn-group" role="group"&gt;</div><div class="line">          &lt;button type="button" class="btn btn-default"</div><div class="line">            @click="show = 'favorites'"</div><div class="line">            :class="&#123;active: show === 'favorites'&#125;"&gt;</div><div class="line">            Favorites</div><div class="line">          &lt;/button&gt;</div><div class="line">        &lt;/div&gt;</div><div class="line">      &lt;/div&gt;</div><div class="line">    &lt;/div&gt;</div><div class="line">    &lt;!-- render notes in a list --&gt;</div><div class="line">    &lt;div class="container"&gt;</div><div class="line">      &lt;div class="list-group"&gt;</div><div class="line">        &lt;a v-for="note in filteredNotes"</div><div class="line">          class="list-group-item" href="#"</div><div class="line">          :class="&#123;active: activeNote === note&#125;"</div><div class="line">          @click="updateActiveNote(note)"&gt;</div><div class="line">          &lt;h4 class="list-group-item-heading"&gt;</div><div class="line">            &#123;&#123;note.text.trim().substring(0, 30)&#125;&#125;</div><div class="line">          &lt;/h4&gt;</div><div class="line">        &lt;/a&gt;</div><div class="line">      &lt;/div&gt;</div><div class="line">    &lt;/div&gt;</div><div class="line"></div><div class="line">  &lt;/div&gt;</div><div class="line">&lt;/template&gt;</div><div class="line"></div><div class="line">&lt;script&gt;</div><div class="line">import &#123; updateActiveNote &#125; from '../vuex/actions'</div><div class="line"></div><div class="line">export default &#123;</div><div class="line">  data () &#123;</div><div class="line">    return &#123;</div><div class="line">      show: 'all'</div><div class="line">    &#125;</div><div class="line">  &#125;,</div><div class="line">  vuex: &#123;</div><div class="line">    getters: &#123;</div><div class="line">      notes: state =&gt; state.notes,</div><div class="line">      activeNote: state =&gt; state.activeNote</div><div class="line">    &#125;,</div><div class="line">    actions: &#123;</div><div class="line">      updateActiveNote</div><div class="line">    &#125;</div><div class="line">  &#125;,</div><div class="line">  computed: &#123;</div><div class="line">    filteredNotes () &#123;</div><div class="line">      if (this.show === 'all')&#123;</div><div class="line">        return this.notes</div><div class="line">      &#125; else if (this.show === 'favorites') &#123;</div><div class="line">        return this.notes.filter(note =&gt; note.favorite)</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
+<ul>
+<li>当用户点击一条笔记，该笔记变成当前选中笔记</li>
+<li>在”all”和”favorite”之间选择实际上就是设置 show 属性</li>
+</ul>
+<h3 id="vue-js-提供了组件树中通信机制，那我为何还用vuex？"><a href="#vue-js-提供了组件树中通信机制，那我为何还用vuex？" class="headerlink" title="vue.js 提供了组件树中通信机制，那我为何还用vuex？"></a>vue.js 提供了组件树中通信机制，那我为何还用vuex？</h3><ul>
+<li>A 为父组件，下面有子组件 B 和 C。</li>
+<li>A 的数据可以通过 props 传递给 B 和 C。</li>
+<li>A可以通过dispatch调用B 和 C 的 events，从而操作 B 和 C 的数据。</li>
+<li>B 和C可以通过$dispatch调用A的events，从而操作 A 的数据。</li>
+</ul>
+<p>但是当B需要操作 C 的数据就会比较麻烦，需要先$dispatch到 A，再 $broadcast 到 C。</p>
+<p>so、、如果项目小还好，如果项目大了，组件多了，组件树🌲越来越大，处理这些内容就会越来越繁琐、所以vuex可以理解为解决了一些这样的问题吧。</p>
+<p><a href="https://github.com/xiaoyang4011/vue-test-code/tree/master/notes" target="_blank" rel="external">源码</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/vue/" rel="tag"># vue</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/13/2016-11-13/" rel="next" title="WebSocket + Vue.js 搭建聊天室">
+                <i class="fa fa-chevron-left"></i> WebSocket + Vue.js 搭建聊天室
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/12/06/2016-12-06/" rel="prev" title="Nodejs之多进程">
+                Nodejs之多进程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/20/2016-11-20/"
+           data-title="初识Vuex" data-url="http://yoursite.com/2016/11/20/2016-11-20/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://ojkc58rwm.bkt.clouddn.com/avatar.png"
+               alt="Shawn" />
+          <p class="site-author-name" itemprop="name">Shawn</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Vuex-是一个专门为-Vue-js-应用所设计的集中式状态管理架构。"><span class="nav-number">1.</span> <span class="nav-text">Vuex 是一个专门为 Vue.js 应用所设计的集中式状态管理架构。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新建vue项目"><span class="nav-number">2.</span> <span class="nav-text">新建vue项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vue-js-提供了组件树中通信机制，那我为何还用vuex？"><span class="nav-number">3.</span> <span class="nav-text">vue.js 提供了组件树中通信机制，那我为何还用vuex？</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shawn</span>
+</div>
+
+
+<div class="powered-by">
+  <a class="theme-link" target="_blank" href="http://www.miibeian.gov.cn">鲁ICP备15003072号</a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"7csa"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
